@@ -1,0 +1,24 @@
+# Binaries & Executables
+DataCleaner
+Deduplication
+*.o
+*.out
+*.exe
+
+# Python Cache & Environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+ENV/
+
+# OS Specific
+.DS_Store
+Thumbs.db
+
+# Large Assets/Models (Practice safe versioning)
+*.png
+# We want networking_rca_architecture.png to be pushed, but generally exclude large assets
+!networking_rca_architecture.png
