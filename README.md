@@ -32,7 +32,6 @@ This project addresses these gaps by:
 
 The core strategy is "Accuracy, Accuracy, Accuracy." By combining the structured reasoning of a Knowledge Graph with the semantic retrieval of Vector Embeddings, the system can provide context-aware recommendations for complex protocol and hardware failures.
 
-![System Architecture](docs/architecture/networking_rca_architecture.png)
 
 The guiding principle of the system is:
 
@@ -48,7 +47,6 @@ By fusing symbolic reasoning (graphs) with semantic similarity (vectors), the sy
 4. Incoming alarms/events seed graph traversal and vector search
 5. Results are merged into an explainable RCA report
 
-![System Architecture](docs/architecture/networking_rca_architecture.png)
 
 ---
 
@@ -59,6 +57,15 @@ Networking-RCA-GraphRAG-RecSys/
 ├── src/
 │   ├── indexing/
 │   │   ├── data-ingestion/     # Phase 1: Cleaning & Semantic Chunking
+│   │   │   ├── DataCleaner              # Removing boilerplate (headers, footers, page markers)
+│   │   │   ├── Deduplicator             # Locality Sensitive Hashing (LSH)
+│   │   │   ├── DomainNormalizer         # Alias Resolver
+│   │   │   └── VersionResolver          # RegEx based version extraction
+│   │   │   ├── ConditionalExtractor     # Python based NLP
+│   │   │   ├── NegationTagger           # Adding Negative-weight
+│   │   │   ├── MetadataEnricher         # Adding metadata (Source Type, Authority Score)
+│   │   │   ├── TemporalAnnotator        # Enrichment v2.0 (Draft vs Proposed vs Internet Standard)
+│   │   │   ├── SemanticChunker          # Semantic chunking using LLM
 │   │   ├── extraction/         # Phase 2: Entity & Relationship Extraction
 │   │   ├── clustering/         # Graph communities & partitioning
 │   │   └── summarization/      # Community-level LLM summaries
@@ -185,7 +192,7 @@ Accuracy is treated as a first-class concern:
 
 ## 🛤️ Project Roadmap
 
-* [ ] Phase 1: Ingestion & Semantic Chunking
+* [x] Phase 1: Ingestion & Semantic Chunking
 * [ ] Phase 2: Entity & Relationship Extraction
 * [ ] Phase 2b: Knowledge Graph Population (FalkorDB)
 * [ ] Phase 3: Vector Indexing (Faiss)
