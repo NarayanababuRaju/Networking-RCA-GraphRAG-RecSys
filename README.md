@@ -56,7 +56,7 @@ By fusing symbolic reasoning (graphs) with semantic similarity (vectors), the sy
 Networking-RCA-GraphRAG-RecSys/
 ├── src/
 │   ├── indexing/
-│   │   ├── data-ingestion/     # Phase 1: Cleaning & Semantic Chunking
+│   │   ├── data-preprocessing/      # Phase 1: Cleaning & Semantic Chunking
 │   │   │   ├── DataCleaner              # Removing boilerplate (headers, footers, page markers)
 │   │   │   ├── Deduplicator             # Locality Sensitive Hashing (LSH)
 │   │   │   ├── DomainNormalizer         # Alias Resolver
@@ -66,9 +66,15 @@ Networking-RCA-GraphRAG-RecSys/
 │   │   │   ├── MetadataEnricher         # Adding metadata (Source Type, Authority Score)
 │   │   │   ├── TemporalAnnotator        # Enrichment v2.0 (Draft vs Proposed vs Internet Standard)
 │   │   │   ├── SemanticChunker          # Semantic chunking using LLM
-│   │   ├── extraction/         # Phase 2: Entity & Relationship Extraction
-│   │   ├── clustering/         # Graph communities & partitioning
-│   │   └── summarization/      # Community-level LLM summaries
+│   │   ├── extraction/             # Phase 2: Entity & Relationship Extraction
+│   │   |   ├── DeterministicExtractor   # Regex-based (IPs, ASNs, Interfaces)
+│   │   |   ├── SemanticExtractor        # BERT-NER (Behaviors, Causal Triples)
+│   │   |   └── Disambiguator            # Context-aware sense resolution
+│   ├── semantic-indexing/          # Phase 3: Vector Indexing
+│   │   ├── Embedder.py                  # Sentence-Transformers (MiniLM)
+│   │   └── VectorStore                  # Faiss indexing logic (Planned)
+│   ├── clustering/                 # Phase 4: Graph communities & partitioning
+│   └── summarization/              # Phase 5: Community-level LLM summaries
 │   ├── querying/
 │   │   ├── query-processor/    # Alarm parsing & intent extraction
 │   │   ├── search-engine/      # Faiss-based vector retrieval
@@ -139,7 +145,7 @@ Networking-RCA-GraphRAG-RecSys/
 
 ---
 
-### 3. Entity & Relationship Extraction (Planned)
+### 3. Entity & Relationship Extraction
 
 * Protocols, states, timers, error codes, hardware components
 * Relationships such as:
@@ -151,9 +157,25 @@ Networking-RCA-GraphRAG-RecSys/
 
 Extraction is designed to be **schema-light**, allowing evolution as new protocols and vendors are introduced.
 
+* **DeterministicExtractor (C++)**: High-speed identification of structured assets (IPs, ASNs, Interfaces) using optimized Regex.
+* **SemanticExtractor (Python)**: BERT-based understanding of abstract behaviors and multi-hop causal relationships.
+* **Entity Disambiguator (C++)**: Context-aware resolution of technical polysemy (e.g., distinguishing "Session" in BGP vs. TCP).
+
+**Status:** Fully implemented and integrated into the C++ Graph Engine.
+
 ---
 
-### 4. Knowledge Graph Reasoning
+### 4. Semantic Embedding Generation
+
+* Uses **all-MiniLM-L6-v2** Sentence-Transformers for local, high-precision vectorization.
+* Encodes both **Node Properties** and **Relationship Triples** into a 384-dimensional space.
+* Optimized for **Apple Silicon (MPS)** and batch-processing for sub-millisecond per-chunk inference.
+
+**Goal:** Enable sub-millisecond semantic similarity search for "Fuzzy" RCA matching.
+
+---
+
+### 5. Knowledge Graph Reasoning (C++ Graph Engine)
 
 * Graph walking seeded by alarms and symptoms
 * Combines:
@@ -164,9 +186,13 @@ Extraction is designed to be **schema-light**, allowing evolution as new protoco
 
 This allows the system to infer **multi-hop causal chains**.
 
+* High-performance adjacency-list storage with **Record Linkage** logic.
+* Multi-hop **BFS Traversal API** for discovering causal chains across diverse protocols.
+* Fuses symbolic graph logic with vector-based retrieval intent.
+
 ---
 
-### 5. RCA Explanation Generator
+### 6. RCA Explanation Generator
 
 * Merges graph paths and retrieved text
 * Produces:
@@ -193,8 +219,8 @@ Accuracy is treated as a first-class concern:
 ## 🛤️ Project Roadmap
 
 * [x] Phase 1: Ingestion & Semantic Chunking
-* [ ] Phase 2: Entity & Relationship Extraction
-* [ ] Phase 2b: Knowledge Graph Population (FalkorDB)
+* [x] Phase 2: Entity & Relationship Extraction (Deterministic + Semantic)
+* [x] Phase 2b: Knowledge Graph Population (C++ Graph Engine Core)
 * [ ] Phase 3: Vector Indexing (Faiss)
 * [ ] Phase 4: Query Pipeline & RCA Synthesis
 * [ ] Phase 5: Benchmarking, SME Review & Hardening
@@ -213,11 +239,11 @@ Accuracy is treated as a first-class concern:
 
 ```bash
 # C++ Cleaner
-g++ -std=c++17 src/indexing/data-ingestion/DataCleaner.cpp -o cleaner
+g++ -std=c++17 src/indexing/data-preprocessing/DataCleaner.cpp -o cleaner
 ./cleaner
 
 # Python Semantic Chunker
-python3 src/indexing/data-ingestion/SemanticChunker.py
+python3 src/indexing/data-preprocessing/SemanticChunker.py
 ```
 
 ---
