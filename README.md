@@ -56,34 +56,43 @@ By fusing symbolic reasoning (graphs) with semantic similarity (vectors), the sy
 Networking-RCA-GraphRAG-RecSys/
 ├── src/
 │   ├── indexing/
-│   │   ├── data-preprocessing/      # Phase 1: Cleaning & Semantic Chunking
-│   │   │   ├── DataCleaner              # Removing boilerplate (headers, footers, page markers)
-│   │   │   ├── Deduplicator             # Locality Sensitive Hashing (LSH)
-│   │   │   ├── DomainNormalizer         # Alias Resolver
-│   │   │   └── VersionResolver          # RegEx based version extraction
-│   │   │   ├── ConditionalExtractor     # Python based NLP
-│   │   │   ├── NegationTagger           # Adding Negative-weight
-│   │   │   ├── MetadataEnricher         # Adding metadata (Source Type, Authority Score)
-│   │   │   ├── TemporalAnnotator        # Enrichment v2.0 (Draft vs Proposed vs Internet Standard)
-│   │   │   ├── SemanticChunker          # Semantic chunking using LLM
-│   │   ├── extraction/             # Phase 2: Entity & Relationship Extraction
-│   │   |   ├── DeterministicExtractor   # Regex-based (IPs, ASNs, Interfaces)
-│   │   |   ├── SemanticExtractor        # BERT-NER (Behaviors, Causal Triples)
-│   │   |   └── Disambiguator            # Context-aware sense resolution
-│   ├── semantic-indexing/          # Phase 3: Vector Indexing
-│   │   ├── Embedder.py                  # Sentence-Transformers (MiniLM)
-│   │   └── VectorStore                  # Faiss indexing logic (Planned)
-│   ├── clustering/                 # Phase 4: Graph communities & partitioning
-│   └── summarization/              # Phase 5: Community-level LLM summaries
-│   ├── querying/
-│   │   ├── query-processor/    # Alarm parsing & intent extraction
-│   │   ├── search-engine/      # Faiss-based vector retrieval
-│   │   ├── organizer/          # Graph traversal & reasoning
-│   │   └── generator/          # RCA explanation synthesis
-│   └── validator/              # Accuracy evaluation & SME feedback loop
+│   │   ├── data-preprocessing/               # Phase 1: Cleaning & Semantic Chunking
+│   │   │   ├── DataCleaner                     # Removing boilerplate (headers, footers, page markers)
+│   │   │   ├── Deduplicator                    # Locality Sensitive Hashing (LSH)
+│   │   │   ├── DomainNormalizer                # Alias Resolver
+│   │   │   └── VersionResolver                 # RegEx based version extraction
+│   │   │   ├── ConditionalExtractor            # Python based NLP
+│   │   │   ├── NegationTagger                  # Adding Negative-weight
+│   │   │   ├── MetadataEnricher                # Adding metadata (Source Type, Authority Score)
+│   │   │   ├── TemporalAnnotator               # Enrichment v2.0 (Draft vs Proposed vs Internet Standard)
+│   │   │   ├── SemanticChunker                 # Semantic chunking using LLM
+│   │   ├── extraction/                       # Phase 2: Entity & Relationship Extraction
+│   │   |   ├── DeterministicExtractor          # Regex-based (IPs, ASNs, Interfaces)
+│   │   |   ├── SemanticExtractor               # BERT-NER (Behaviors, Causal Triples)
+│   │   |   └── Disambiguator                   # Context-aware sense resolution
+|   |   |-- graph-engine/                     # Phase 2.5: Graph Engineering
+|   |   |   ├── GraphBuilder                    # Graph construction from entities & relationships
+│   |   |   └── GraphValidator                  # Graph quality checks (TODO)
+│   |   |── semantic-indexing/                # Phase 3: Vector Indexing
+│   │   |   ├── Embedder.py                     # Sentence-Transformers (MiniLM)
+│   │   |   └── VectorStore                     # Faiss indexing logic (Planned)
+│   |   ├── clustering/                       # Phase 4: Graph Communities & Partitioning
+│   │   |   ├── Projector.py                    # Spectral Weighting (View Builder)
+│   │   |   ├── LeidenEngine.py                 # Standard 2-Level Clustering
+│   │   |   ├── LeidenEngineHierarchical.py     # Advanced N-Level Dendrogram Engine
+│   │   |   ├── BridgeIdentifier.py             # Inter-Community Bottleneck Detection
+│   │   |   ├── DriftDetector.py                # Temporal Stability Analysis
+│   │   |   └── Fingerprinter.py                # Deterministic Community Signatures
+│   |   |── summarization/                    # Phase 5: Community-level LLM summaries
+│   ├── querying/                             # Phase 6: Querying & Inference
+│   │   ├── query-processor/                    # Alarm parsing & intent extraction
+│   │   ├── search-engine/                      # Faiss-based vector retrieval
+│   │   ├── organizer/                          # Graph traversal & reasoning
+│   │   └── generator/                          # RCA explanation synthesis
+│   └── validator/                            # Phase 7: Accuracy evaluation & SME feedback loop
 ├── data/
-│   ├── raw/                    # RFCs, datasheets, logs
-│   └── processed/              # Cleaned text, chunks, embeddings
+│   ├── raw/                                  # RFCs, datasheets, logs
+│   └── processed/                            # Cleaned text, chunks, embeddings
 ├── docs/
 │   └── architecture/
 └── README.md
@@ -192,7 +201,20 @@ This allows the system to infer **multi-hop causal chains**.
 
 ---
 
-### 6. RCA Explanation Generator
+### 6. Community Detection & Topology Intelligence (Phase 4)
+
+This layer converts the raw Knowledge Graph into high-level "Fault Domains" using advanced unsupervised learning.
+
+*   **Leiden Clustering (Python)**: Discovers dense communities at multiple resolutions (Macro/Micro). Supports both a standard 2-level engine and an N-level **Hierarchical Dendrogram** engine.
+*   **Bridge Identification**: Pinpoints "Bottleneck" nodes that act as critical connectors between disparate protocol communities (e.g., OSPF <---> BGP).
+*   **Temporal Drift Detector**: Analyzes how community memberships shift between indexing runs, detecting evolving technical faults.
+*   **Community Fingerprinting**: Generates deterministic SHA-256 signatures for each domain. Acts as a **Lazy Trigger** to skip re-summarizing unchanged communities, saving 90% in LLM API costs.
+
+**Goal:** Provide the "Intelligence Layer" that allows the system to reason about systemic failures, not just isolated events.
+
+---
+
+### 7. RCA Explanation Generator
 
 * Merges graph paths and retrieved text
 * Produces:
@@ -221,9 +243,11 @@ Accuracy is treated as a first-class concern:
 * [x] Phase 1: Ingestion & Semantic Chunking
 * [x] Phase 2: Entity & Relationship Extraction (Deterministic + Semantic)
 * [x] Phase 2b: Knowledge Graph Population (C++ Graph Engine Core)
-* [ ] Phase 3: Vector Indexing (Faiss)
-* [ ] Phase 4: Query Pipeline & RCA Synthesis
-* [ ] Phase 5: Benchmarking, SME Review & Hardening
+* [x] Phase 3: Semantic Indexing & Vectorization
+* [x] Phase 4: Community Detection (Leiden + Topology Intelligence)
+* [ ] Phase 5: Community Summarization (LLM Knowledge Briefs)
+* [ ] Phase 6: Query Pipeline & RCA Synthesis
+* [ ] Phase 7: Benchmarking, SME Review & Hardening
 
 ---
 
