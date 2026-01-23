@@ -84,6 +84,10 @@ Networking-RCA-GraphRAG-RecSys/
 │   │   |   ├── DriftDetector.py                # Temporal Stability Analysis
 │   │   |   └── Fingerprinter.py                # Deterministic Community Signatures
 │   |   |── summarization/                    # Phase 5: Community-level LLM summaries
+│   │   |   ├── TopologyFilter.py               # Intra-community PageRank
+│   │   |   ├── ContextBuilder.py               # Technical Biography Generation
+│   │   |   ├── KnowledgeSynthesizer.py         # LLM Abstractive Synthesis
+│   │   |   └── SummaryIndexer.py               # Thematic Vectorization
 │   ├── querying/                             # Phase 6: Querying & Inference
 │   │   ├── query-processor/                    # Alarm parsing & intent extraction
 │   │   ├── search-engine/                      # Faiss-based vector retrieval
@@ -212,9 +216,15 @@ This layer converts the raw Knowledge Graph into high-level "Fault Domains" usin
 
 **Goal:** Provide the "Intelligence Layer" that allows the system to reason about systemic failures, not just isolated events.
 
+### 7. Community Summarization (Phase 5: The Intelligence Layer)
+This phase transforms mathematical clusters into actionable RCA briefs using Generative AI.
+- **Topology Filter**: Uses PageRank to focus LLM attention on "Information Hubs."
+- **Context Builder**: Aggregates 1-hop relationships to build technical biographies.
+- **LLM Synthesis**: Produces structured "Knowledge Briefs" (Title, Summary, Symptoms, Causes).
+- **Thematic Indexing**: Makes the summaries searchable via the Unified Vector Registry.
 ---
 
-### 7. RCA Explanation Generator
+### 8. RCA Explanation Generator
 
 * Merges graph paths and retrieved text
 * Produces:
@@ -245,8 +255,8 @@ Accuracy is treated as a first-class concern:
 * [x] Phase 2b: Knowledge Graph Population (C++ Graph Engine Core)
 * [x] Phase 3: Semantic Indexing & Vectorization
 * [x] Phase 4: Community Detection (Leiden + Topology Intelligence)
-* [ ] Phase 5: Community Summarization (LLM Knowledge Briefs)
-* [ ] Phase 6: Query Pipeline & RCA Synthesis
+* [x] Phase 5: Community Summarization (LLM Knowledge Briefs)
+* [ ] Phase 6: Query Pipeline & RCA Synthesis (Next Step)
 * [ ] Phase 7: Benchmarking, SME Review & Hardening
 
 ---
