@@ -188,16 +188,16 @@ int main() {
             << std::endl;
   std::cout << "Query: Find path from LINK_FAILURE to BGP_SESSION_RESET..."
             << std::endl;
-  std::vector<uint64_t> path1 = engine.findPath(linkId, bgpId);
+  std::vector<uint64_t> path = engine.findPath(linkId, bgpId);
 
-  if (!path1.empty()) {
+  if (!path.empty()) {
     std::cout << "Path Found (Reasoning Chain):" << std::endl;
-    for (size_t i = 0; i < path1.size(); ++i) {
-      auto node = engine.getNode(path1[i]);
+    for (size_t i = 0; i < path.size(); ++i) {
+      auto node = engine.getNode(path[i]);
       std::cout << "  Step " << i + 1 << ": [" << node->label << "] "
                 << std::get<std::string>(node->properties["canonical_name"])
                 << std::endl;
-      if (i < path1.size() - 1)
+      if (i < path.size() - 1)
         std::cout << "      | (CAUSES) -> " << std::endl;
     }
   }
